@@ -1,9 +1,7 @@
-import pytest
+from deepagents.backends.protocol import EditResult, WriteResult
+from deepagents.backends.state import StateBackend
 from langchain.tools import ToolRuntime
 from langchain_core.messages import ToolMessage
-from deepagents.backends.protocol import WriteResult, EditResult
-
-from deepagents.backends.state import StateBackend
 
 
 def make_runtime(files=None):
@@ -149,10 +147,7 @@ def test_state_backend_intercept_large_tool_result():
     from langgraph.types import Command
 
     rt = make_runtime()
-    middleware = FilesystemMiddleware(
-        backend=lambda r: StateBackend(r),
-        tool_token_limit_before_evict=1000
-    )
+    middleware = FilesystemMiddleware(backend=lambda r: StateBackend(r), tool_token_limit_before_evict=1000)
 
     large_content = "x" * 5000
     tool_message = ToolMessage(content=large_content, tool_call_id="test_123")

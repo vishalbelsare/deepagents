@@ -1,9 +1,7 @@
-import pytest
+from deepagents.backends.protocol import EditResult, WriteResult
+from deepagents.backends.store import StoreBackend
 from langchain.tools import ToolRuntime
 from langgraph.store.memory import InMemoryStore
-
-from deepagents.backends.store import StoreBackend
-from deepagents.backends.protocol import WriteResult, EditResult
 
 
 def make_runtime():
@@ -120,10 +118,7 @@ def test_store_backend_intercept_large_tool_result():
     from langchain_core.messages import ToolMessage
 
     rt = make_runtime()
-    middleware = FilesystemMiddleware(
-        backend=lambda r: StoreBackend(r),
-        tool_token_limit_before_evict=1000
-    )
+    middleware = FilesystemMiddleware(backend=lambda r: StoreBackend(r), tool_token_limit_before_evict=1000)
 
     large_content = "y" * 5000
     tool_message = ToolMessage(content=large_content, tool_call_id="test_456")

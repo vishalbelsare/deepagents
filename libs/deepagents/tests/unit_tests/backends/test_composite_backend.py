@@ -1,13 +1,12 @@
 from pathlib import Path
 
+from deepagents.backends.composite import CompositeBackend
+from deepagents.backends.filesystem import FilesystemBackend
+from deepagents.backends.protocol import WriteResult
+from deepagents.backends.state import StateBackend
+from deepagents.backends.store import StoreBackend
 from langchain.tools import ToolRuntime
 from langgraph.store.memory import InMemoryStore
-
-from deepagents.backends.filesystem import FilesystemBackend
-from deepagents.backends.store import StoreBackend
-from deepagents.backends.state import StateBackend
-from deepagents.backends.composite import CompositeBackend
-from deepagents.backends.protocol import WriteResult
 
 
 def make_runtime(tid: str = "tc"):
@@ -19,6 +18,7 @@ def make_runtime(tid: str = "tc"):
         stream_writer=lambda _: None,
         config={},
     )
+
 
 def build_composite_state_backend(runtime: ToolRuntime, *, routes):
     built_routes = {}
@@ -141,7 +141,7 @@ def test_composite_backend_multiple_routes():
             "/memories/": (lambda r: StoreBackend(r)),
             "/archive/": (lambda r: StoreBackend(r)),
             "/cache/": (lambda r: StoreBackend(r)),
-        }
+        },
     )
 
     # Write to state (default)
@@ -257,7 +257,7 @@ def test_composite_backend_ls_multiple_routes_nested():
         routes={
             "/memories/": (lambda r: StoreBackend(r)),
             "/archive/": (lambda r: StoreBackend(r)),
-        }
+        },
     )
 
     state_files = {
@@ -351,8 +351,7 @@ def test_composite_backend_intercept_large_tool_result():
     rt = make_runtime("t10")
 
     middleware = FilesystemMiddleware(
-        backend=lambda r: build_composite_state_backend(r, routes={"/memories/": (lambda x: StoreBackend(x))}),
-        tool_token_limit_before_evict=1000
+        backend=lambda r: build_composite_state_backend(r, routes={"/memories/": (lambda x: StoreBackend(x))}), tool_token_limit_before_evict=1000
     )
     large_content = "z" * 5000
     tool_message = ToolMessage(content=large_content, tool_call_id="test_789")
@@ -372,11 +371,8 @@ def test_composite_backend_intercept_large_tool_result_routed_to_store():
     rt = make_runtime("t11")
 
     middleware = FilesystemMiddleware(
-        backend=lambda r: build_composite_state_backend(
-            r,
-            routes={"/large_tool_results/": (lambda x: StoreBackend(x))}
-        ),
-        tool_token_limit_before_evict=1000
+        backend=lambda r: build_composite_state_backend(r, routes={"/large_tool_results/": (lambda x: StoreBackend(x))}),
+        tool_token_limit_before_evict=1000,
     )
 
     large_content = "w" * 5000
